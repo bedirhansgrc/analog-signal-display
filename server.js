@@ -15,29 +15,17 @@ app.use(express.static(path.join(__dirname, 'public')));
 wss.on('connection', function connection(ws) {
   console.log('Client connected');
 
-  let interval;
-
-  ws.on('message', (message) => {
-    console.log(`Received message from client: ${message}`);
-    if (message === 'start') {
-      console.log('Starting emulation');
-      clearInterval(interval); // Eski interval varsa temizle
-      interval = setInterval(() => {
-        const signalData = generateSineWaveData();
-        console.log('Generated signal data:', signalData);
-        ws.send(JSON.stringify(signalData), (err) => {
-          if (err) {
-            console.error('Error sending data:', err);
-          } else {
-            console.log('Data sent successfully');
-          }
-        });
-      }, 3000);
-    } else if (message === 'stop') {
-      console.log('Stopping emulation');
-      clearInterval(interval);
-    }
-  });
+  let interval = setInterval(() => {
+    const signalData = generateRandomSignalData();
+    console.log('Generated signal data:', signalData);
+    ws.send(JSON.stringify(signalData), (err) => {
+      if (err) {
+        console.error('Error sending data:', err);
+      } else {
+        console.log('Data sent successfully:', signalData);
+      }
+    });
+  }, 3000);
 
   ws.on('close', () => {
     console.log('Client disconnected');
@@ -50,16 +38,14 @@ wss.on('connection', function connection(ws) {
   });
 });
 
-// Sinüs dalgası verisi oluşturma fonksiyonu
-function generateSineWaveData() {
-  const length = 100;
+// Rastgele sinyal verisi oluşturma fonksiyonu
+function generateRandomSignalData() {
+  const length = 100; // Veri uzunluğu
   const data = [];
-  const frequency = 0.1; // Frekans değeri
   for (let i = 0; i < length; i++) {
-    const value = Math.sin(2 * Math.PI * frequency * i);
-    data.push(parseFloat(value.toFixed(8)));
+    data.push(parseFloat((Math.random() * 10 - 5).toFixed(8))); // -5 ile 5 arasında rastgele float değer
   }
-  console.log('Generated sine wave data:', data); // Veri loglaması
+  console.log('Generated random signal data:', data); // Veri loglaması
   return data;
 }
 
