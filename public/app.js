@@ -2,9 +2,16 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeWebSocket();
     createChart();
 
-    // Auto Scale butonuna tıklama olayı
     const autoScaleButton = document.getElementById('autoScale');
     autoScaleButton.addEventListener('click', toggleAutoScale);
+
+    // Emulate button event listener
+    const emulateButton = document.getElementById('emulate');
+    emulateButton.addEventListener('click', function() {
+        if (socket && socket.readyState === WebSocket.OPEN) {
+            socket.send(JSON.stringify({ action: 'emulate' }));
+        }
+    });
 });
 
 let socket;

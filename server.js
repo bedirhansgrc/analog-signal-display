@@ -15,37 +15,47 @@ app.use(express.static(path.join(__dirname, 'public')));
 wss.on('connection', function connection(ws) {
   console.log('Client connected');
 
-  let interval = setInterval(() => {
-    const signalData = generateRandomSignalData();
-    console.log('Generated signal data:', signalData);
-    ws.send(JSON.stringify(signalData), (err) => {
-      if (err) {
-        console.error('Error sending data:', err);
-      } else {
-        console.log('Data sent successfully:', signalData);
-      }
-    });
-  }, 3000);
+  ws.on('message', (message) => {
+    console.log(`Received message from client: ${message}`);
+    const msg = JSON.parse(message);
+    if (msg.action === 'emulate') {
+      // Generate random signals and send them
+      const data = generateRandomSignals(); // Assume this function exists
+      ws.send(JSON.stringify(data));
+    }
+  });
 
   ws.on('close', () => {
     console.log('Client disconnected');
-    clearInterval(interval);
   });
 
   ws.on('error', (error) => {
     console.error('WebSocket error:', error);
-    clearInterval(interval);
   });
 });
 
-// Rastgele sinyal verisi oluşturma fonksiyonu
-function generateRandomSignalData() {
-  const length = 100; // Veri uzunluğu
+// Function to generate random signals (you can adjust the logic as needed)
+function generateRandomSignals() {
+  const length = 100;
   const data = [];
   for (let i = 0; i < length; i++) {
-    data.push(parseFloat((Math.random() * 10 - 5).toFixed(8))); // -5 ile 5 arasında rastgele float değer
+    const value = Math.random() * 10 - 5; // Generates a random value between -5 and 5
+    data.push(parseFloat(value.toFixed(8)));
   }
-  console.log('Generated random signal data:', data); // Veri loglaması
+  console.log('Generated random signals:', data);
+  return data;
+}
+
+// Sinüs dalgası verisi oluşturma fonksiyonu (gerekirse kullanılabilir)
+function generateSineWaveData() {
+  const length = 100;
+  const data = [];
+  const frequency = 0.1; // Frekans değeri
+  for (let i = 0; i < length; i++) {
+    const value = Math.sin(2 * Math.PI * frequency * i);
+    data.push(parseFloat(value.toFixed(8)));
+  }
+  console.log('Generated sine wave data:', data); // Veri loglaması
   return data;
 }
 
